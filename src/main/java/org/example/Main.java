@@ -4,20 +4,21 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
+import java.util.Comparator;
+
 public class Main {
 
     public static <T> void findMinMax(
             Stream<? extends T> stream,
             Comparator<? super T> order,
             BiConsumer<? super T, ? super T> minMaxConsumer) {
-        try (Stream<? extends T> stream_ = stream) {
-            Optional<? extends T> min = stream_.min(order);
-            Optional<? extends T> max = stream_.max(order);
-            if(min.isPresent() && max.isPresent()){
-                minMaxConsumer.accept(min.get(), max.get());
-            } else {
-                minMaxConsumer.accept(null, null);
-            }
+        List<? extends T> list = stream.sorted(order).toList();
+        if (!list.isEmpty()) {
+            T min = list.get(0);
+            T max = list.get(list.size() - 1);
+            minMaxConsumer.accept(min, max);
+        } else {
+            minMaxConsumer.accept(null, null);
         }
     }
 
@@ -33,6 +34,6 @@ public class Main {
         try (Stream<Integer> stream = list.stream()) {
             findMinMax(stream, Integer::compareTo, (x, y) -> System.out.printf("min: %s, max: %s%n", x, y));
         }
-        printEvenNumbers(new ArrayList<>(list));
+        printEvenNumbers(list);
     }
 }
